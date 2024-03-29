@@ -168,7 +168,7 @@ class Oscilloscope():
 
         '''
         self.get_meta_data()
-        raw_data = self.query(':DATA:WAVE:SCREEN:CH{}?'.format(ch))
+        raw_data = self.query(f':DATA:WAVE:SCREEN:CH{ch}?')
         data = []
         # discard first 4 bytes (meta data)
         for idx in range(4,len(raw_data),2):
@@ -189,6 +189,28 @@ class Oscilloscope():
         data = [scale * (dk - offset*8.25)/410 for dk in data]
             
         return np.array(data,dtype=np.float64)
+    
+    def get_channel_measurement_data(self, ch:int) -> dict:
+        '''
+        Queries all available measurements.
+        All measurement types are actually activated but only displayed upon
+        according configuration in the menu accessible through the "Measure"
+        button.
+        
+        Parameters
+        ----------
+        ch : int
+            Channel number. Possible values: 1, 2.
+        
+        Returns
+        -------
+        dict
+            all measurements in dict format.
+        
+        '''
+        meas_string = self.query_string_result(f':MEAS:CH{ch}?')
+        meas_string = meas_string.replace('0\x02\x00\x00', '')
+        return json.loads(meas_string)
 
     def get_meta_data(self) -> None:
         '''
