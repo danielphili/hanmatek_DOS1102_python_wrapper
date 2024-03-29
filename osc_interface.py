@@ -313,9 +313,9 @@ class Oscilloscope():
     
 if __name__ == '__main__':
     osci = Oscilloscope()
-    # osci.write(':RUNNING RUN')
-    # time.sleep(0.01)
-    # osci.write(':RUNNING STOP')    
+    osci.write(':RUNNING RUN')
+    time.sleep(0.01)
+    osci.write(':RUNNING STOP')    
     osci.get_meta_data()
     time = osci.get_time_base()
     data_ch1 = osci.get_channel_waveform_data(ch=1)
@@ -343,3 +343,16 @@ if __name__ == '__main__':
     df = pd.DataFrame(data)
     df.columns =  ['Time','CH1','CH2']
     df.to_csv('OsciData.csv', index=False)
+    
+    meta_data_string = json.dumps(osci.meta_data)
+    measurement_data_ch1_string = \
+        json.dumps(osci.get_channel_measurement_data(ch=1))
+    measurement_data_ch2_string = \
+        json.dumps(osci.get_channel_measurement_data(ch=2))
+    
+    meta_meas_data_string = (meta_data_string + measurement_data_ch1_string + \
+        measurement_data_ch2_string).replace('}{', ',')
+    
+    with open("OsciData_MetaMeas.json",'w+') as file:
+        file.write(meta_meas_data_string)
+        file.close()
