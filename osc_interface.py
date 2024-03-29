@@ -151,7 +151,7 @@ class Oscilloscope():
             result = result.tobytes().decode('utf-8')
         return result  
     
-    def get_channel_measurement_data(self, ch:int) -> np.array:
+    def get_channel_waveform_data(self, ch:int) -> np.array:
         '''
         Queries the data recorded on channel ch and returns it in an np.array.
         The data is scaled to the voltage at the probe input.
@@ -291,12 +291,12 @@ class Oscilloscope():
     
 if __name__ == '__main__':
     osci = Oscilloscope()
-    osci.write(':RUNNING RUN')
-    time.sleep(0.01)
-    osci.write(':RUNNING STOP')    
+    # osci.write(':RUNNING RUN')
+    # time.sleep(0.01)
+    # osci.write(':RUNNING STOP')    
     osci.get_meta_data()
     time = osci.get_time_base()
-    data_ch1 = osci.get_channel_measurement_data(ch=1)
+    data_ch1 = osci.get_channel_waveform_data(ch=1)
 
     # filter for nicer waveform (bandwidth loss assumed acceptable)
     from scipy.ndimage import gaussian_filter1d
@@ -315,7 +315,7 @@ if __name__ == '__main__':
 
     # save to disk
     import pandas as pd
-    data_ch2 = gaussian_filter1d(osci.get_channel_measurement_data(ch=2), sigma=1) 
+    data_ch2 = gaussian_filter1d(osci.get_channel_waveform_data(ch=2), sigma=1) 
     time *= 1E-6
     data = np.array([time, data_ch1, data_ch2], dtype=np.float64).T
     df = pd.DataFrame(data)
